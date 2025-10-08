@@ -100,7 +100,7 @@ import Book from "./components/Book";
 import "./App.css";
 
 function App() {
-  const [books, setBooks] = useState([]); // start with no books
+  const [books, setBooks] = useState([]); 
   const addDialogRef = useRef(null);
   const updateDialogRef = useRef(null);
 
@@ -225,7 +225,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>© 2025 Esteban's Catalog - V3</p>
+        <p>© 2025 Esteban's Catalog - V4</p>
       </footer>
 
       {/* Add Book Dialog */}

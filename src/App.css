@@ -123,6 +123,14 @@
   justify-content: center; 
 }
 
+.update-button, .delete-button {
+color: white;
+background-color: #0e2b4a;
+padding: 0.5rem 1rem;
+margin: .2rem;
+border-radius: 5px;
+}
+
 .footer {
   background: #f4f4f4;
   padding: 1rem;
