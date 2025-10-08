@@ -1,0 +1,237 @@
+.app {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: #222;
+  color: white;
+  padding: 1rem;
+}
+
+
+
+.content {
+  display: flex;             /* flex container */
+  gap: 20px;
+  padding: 2rem;
+  justify-content: center;   /* center horizontally */
+  align-items: flex-start;   /* align items to top */
+}
+
+
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 200px); /* 3 columns of 200px each */
+  gap: 20px 40px;
+}
+
+
+
+
+
+.book-card {
+  width: 200px;
+  height: 300px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+
+}
+.book-card:hover {
+  border-color: #4877a9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+.book-card img {
+  max-width: 100%;
+  height: 150px;
+  object-fit: contain;
+}
+
+.book-card h3 {
+  font-size: 1rem;
+  margin: 5px 0;
+  height:50px;
+}
+
+.book-card p {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.book-card a {
+  color: #007bff;
+  text-decoration: none;
+}
+.book-card.selected {
+  border: 4px solid #4580c4;
+}
+
+/* Make book card relative for absolute positioning */
+.book-card {
+  position: relative; /* add this line */
+}
+
+/* Delete button styling */
+.delete-btn {
+  position: absolute;
+  top: 8px;   /* distance from top */
+  right: 8px; /* distance from right */
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 0.3em 0.6em;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #ff7875;
+}
+
+
+
+.add-button {
+  width: 224px;
+  height: 324px;
+  border: 2px dashed #007bff;
+  border-radius: 10px;
+  font-size: 2rem;
+  font-weight: bold;
+  background: white;
+  cursor: pointer;
+
+}
+.add-button:hover {
+  background: #325d80;
+  color: white;
+}
+
+.add-button-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+}
+
+.footer {
+  background: #f4f4f4;
+  padding: 1rem;
+  margin-top: auto;
+}
+
+
+
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;  
+    align-items: center;   
+  }
+
+  .book-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .add-button-column {
+    margin-top: 20px;    
+  }
+}
+
+/* Dialog box styling */
+.book-dialog {
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  border: none;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  font-family: Arial, sans-serif;
+}
+
+/* Dialog title */
+.dialog-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+/* Form styling: two-column layout */
+.book-form {
+  display: grid;
+  grid-template-columns: 1fr 2fr; /* label = 1 fraction, input = 2 fractions */
+  gap: 1rem 1.5rem;
+  align-items: center;
+}
+
+.form-label {
+  justify-self: end; /* move labels to right within their cell */
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.form-input {
+  width: 200px;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus {
+  border-color: #0077ff;
+}
+
+/* Buttons container */
+.form-buttons {
+  grid-column: 1 / -1; /* span both columns */
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Buttons */
+.submit-button, .close-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submit-button {
+  background-color: #0077ff;
+  color: white;
+}
+
+.submit-button:hover {
+  background-color: #005ecc;
+}
+
+.close-button {
+  background-color: #eee;
+  color: #333;
+}
+
+.close-button:hover {
+  background-color: #ccc;
+}
+
+/* Backdrop for modal */
+.book-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
