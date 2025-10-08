@@ -1,13 +1,19 @@
 
-
 // import React, { useState } from "react";
 
 // export default function Book({ book }) {
 //   const [isSelected, setIsSelected] = useState(false);
+//   const [isVisible, setIsVisible] = useState(true); // new state to track visibility
 
 //   const handleClick = () => {
-//     setIsSelected(!isSelected); // toggle state
+//     setIsSelected(!isSelected); // toggle selection
 //   };
+
+//   const handleDelete = () => {
+//     setIsVisible(false); // hide the book
+//   };
+
+//   if (!isVisible) return null; // don't render anything if hidden
 
 //   return (
 //     <div
@@ -26,29 +32,20 @@
 //       >
 //         View Details
 //       </a>
+//       <button onClick={handleDelete} className="delete-btn">
+//         X
+//       </button>
 //     </div>
 //   );
 // }
-import React, { useState } from "react";
 
-export default function Book({ book }) {
-  const [isSelected, setIsSelected] = useState(false);
-  const [isVisible, setIsVisible] = useState(true); // new state to track visibility
+import React from "react";
 
-  const handleClick = () => {
-    setIsSelected(!isSelected); // toggle selection
-  };
-
-  const handleDelete = () => {
-    setIsVisible(false); // hide the book
-  };
-
-  if (!isVisible) return null; // don't render anything if hidden
-
+export default function Book({ book, onSelect }) {
   return (
     <div
-      className={`book-card ${isSelected ? "selected" : ""}`}
-      onClick={handleClick}
+      className={`book-card ${book.selected ? "selected" : ""}`}
+      onClick={onSelect}
     >
       <img src={book.image} alt={book.title} />
       <h3>{book.title}</h3>
@@ -62,9 +59,7 @@ export default function Book({ book }) {
       >
         View Details
       </a>
-      <button onClick={handleDelete} className="delete-btn">
-        X
-      </button>
     </div>
   );
 }
+
