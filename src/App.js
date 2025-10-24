@@ -25,7 +25,7 @@
 //   return (
 //     <div className="app">
 //       <header className="header">
-//         <h1>Esteban's Book Catalog V4</h1>
+//         <h1>Esteban's Book Catalog V5</h1>
 //       </header>
 
 //       <main className="content">
@@ -191,7 +191,7 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>Esteban's Book Catalog V4</h1>
+        <h1>Esteban's Book Catalog V5</h1>
       </header>
 
       <main className="content">
@@ -225,7 +225,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>© 2025 Esteban's Catalog - V4</p>
+        <p>© 2025 Esteban's Catalog - V5</p>
       </footer>
 
       {/* Add Book Dialog */}
