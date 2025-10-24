@@ -95,16 +95,89 @@
 
 // export default App;
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Book from "./components/Book";
+import data from "./data/books.json";
 import "./App.css";
 
 function App() {
   const [books, setBooks] = useState([]); 
+  const [filteredBooks, setFilteredBooks] = useState([]);
+  const [filters, setFilters] = useState({
+    title: '',
+    yearSort: 'none', // 'none', 'oldest', 'newest'
+    pagesSort: 'none' // 'none', 'asc', 'desc'
+  });
   const addDialogRef = useRef(null);
   const updateDialogRef = useRef(null);
 
   const [currentBook, setCurrentBook] = useState(null);
+
+  // Load books from local storage and merge with initial data
+  useEffect(() => {
+    const savedBooks = localStorage.getItem('bookCatalog');
+    let initialBooks = [];
+    
+    if (savedBooks) {
+      initialBooks = JSON.parse(savedBooks);
+    } else {
+      // If no saved books, use the initial data from books.json
+      initialBooks = data.map(book => ({
+        ...book,
+        authors: book.authors || 'Unknown Author',
+        publisher: book.publisher || 'Unknown Publisher',
+        year: book.year || new Date().getFullYear(),
+        language: book.language || 'English',
+        pages: book.pages || Math.floor(Math.random() * 500) + 100,
+        selected: false
+      }));
+    }
+    
+    setBooks(initialBooks);
+    setFilteredBooks(initialBooks);
+  }, []);
+
+  // Save books to local storage whenever books change
+  useEffect(() => {
+    if (books.length > 0) {
+      localStorage.setItem('bookCatalog', JSON.stringify(books));
+    }
+  }, [books]);
+
+  // Apply filters whenever books or filters change
+  useEffect(() => {
+    let filtered = [...books];
+
+    // Filter by title
+    if (filters.title) {
+      filtered = filtered.filter(book => 
+        book.title.toLowerCase().includes(filters.title.toLowerCase())
+      );
+    }
+
+    // Sort by publication year
+    if (filters.yearSort === 'oldest') {
+      filtered.sort((a, b) => (a.year || 0) - (b.year || 0));
+    } else if (filters.yearSort === 'newest') {
+      filtered.sort((a, b) => (b.year || 0) - (a.year || 0));
+    }
+
+    // Sort by pages
+    if (filters.pagesSort === 'asc') {
+      filtered.sort((a, b) => (a.pages || 0) - (b.pages || 0));
+    } else if (filters.pagesSort === 'desc') {
+      filtered.sort((a, b) => (b.pages || 0) - (a.pages || 0));
+    }
+
+    setFilteredBooks(filtered);
+  }, [books, filters]);
+
+  const handleFilterChange = (filterType, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value
+    }));
+  };
 
   const handleOpenAddDialog = () => {
     if (addDialogRef.current) addDialogRef.current.showModal();
@@ -205,15 +278,70 @@ function App() {
           <button className="delete-button" onClick={handleDeleteSelected}>
             Delete
           </button>
+
+          {/* Filter Controls */}
+          <div className="filter-controls">
+            <div className="filter-group">
+              <label htmlFor="title-filter">Filter by Title:</label>
+              <input
+                id="title-filter"
+                type="text"
+                placeholder="Search books by title..."
+                value={filters.title}
+                onChange={(e) => handleFilterChange('title', e.target.value)}
+                className="filter-input"
+              />
+            </div>
+
+            <div className="filter-group">
+              <label htmlFor="year-sort">Sort by Publication Year:</label>
+              <select
+                id="year-sort"
+                value={filters.yearSort}
+                onChange={(e) => handleFilterChange('yearSort', e.target.value)}
+                className="filter-select"
+              >
+                <option value="none">No sorting</option>
+                <option value="oldest">Oldest first</option>
+                <option value="newest">Newest first</option>
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label htmlFor="pages-sort">Sort by Pages:</label>
+              <select
+                id="pages-sort"
+                value={filters.pagesSort}
+                onChange={(e) => handleFilterChange('pagesSort', e.target.value)}
+                className="filter-select"
+              >
+                <option value="none">No sorting</option>
+                <option value="asc">Fewest pages first</option>
+                <option value="desc">Most pages first</option>
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <button 
+                onClick={() => setFilters({ title: '', yearSort: 'none', pagesSort: 'none' })}
+                className="clear-filters-button"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="book-grid">
-          {books.length === 0 ? (
+          {filteredBooks.length === 0 ? (
             <p style={{ textAlign: "center", width: "100%", marginTop: "2rem" }}>
-              No books yet. Click "Add" to create a new book.
+              {books.length === 0 
+                ? "No books yet. Click 'Add' to create a new book."
+                : "No books match your current filters. Try adjusting your search criteria."
+              }
             </p>
           ) : (
-            books.map((book) => (
+            filteredBooks.map((book) => (
               <Book
                 key={book.isbn13}
                 book={book}

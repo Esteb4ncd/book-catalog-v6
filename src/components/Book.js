@@ -49,7 +49,11 @@ export default function Book({ book, onSelect }) {
     >
       <img src={book.image} alt={book.title} />
       <h3>{book.title}</h3>
-      <p>{book.authors}</p>
+      <p className="book-author">{book.authors}</p>
+      <p className="book-details">
+        {book.year && `Published: ${book.year}`}
+        {book.pages && ` • ${book.pages} pages`}
+      </p>
       <p className="book-price">{book.price}</p>
       <a
         href={book.url}

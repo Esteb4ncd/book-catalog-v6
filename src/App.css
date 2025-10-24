@@ -65,6 +65,18 @@
 .book-card p {
   font-size: 0.9rem;
   color: #555;
+  margin: 2px 0;
+}
+
+.book-author {
+  font-weight: 600;
+  color: #333;
+}
+
+.book-details {
+  font-size: 0.8rem;
+  color: #666;
+  font-style: italic;
 }
 
 .book-card a {
@@ -120,15 +132,97 @@
 .add-button-column {
   display: flex;
   flex-direction: column;
-  justify-content: center; 
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Filter Controls */
+.filter-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 0;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  width: 224px; /* Match add button width */
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filter-group label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #333;
+  text-align: left;
+}
+
+.filter-input {
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.filter-input:focus {
+  border-color: #0077ff;
+}
+
+.filter-select {
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  width: 100%;
+  background-color: white;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.filter-select:focus {
+  border-color: #0077ff;
+}
+
+.clear-filters-button {
+  padding: 0.4rem 0.8rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+}
+
+.clear-filters-button:hover {
+  background-color: #5a6268;
 }
 
 .update-button, .delete-button {
-color: white;
-background-color: #0e2b4a;
-padding: 0.5rem 1rem;
-margin: .2rem;
-border-radius: 5px;
+  color: white;
+  background-color: #0e2b4a;
+  padding: 0.5rem 1rem;
+  margin: 0.2rem 0;
+  border-radius: 5px;
+  width: 224px; /* Match add button width */
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.update-button:hover, .delete-button:hover {
+  background-color: #1a3a5c;
 }
 
 .footer {
