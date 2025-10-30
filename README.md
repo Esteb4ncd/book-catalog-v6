@@ -1,4 +1,4 @@
-https://Esteb4ncd.github.io/book-catalog-v5
+https://Esteb4ncd.github.io/book-catalog-v6
 
 # Assignment Criteria
 

@@ -112,10 +112,13 @@ function App() {
   const updateDialogRef = useRef(null);
 
   const [currentBook, setCurrentBook] = useState(null);
+  const [view, setView] = useState(() => localStorage.getItem('catalogView') || 'catalog'); // 'catalog' | 'loans'
+  const [loans, setLoans] = useState([]); // { isbn13, borrower, weeks, dueDateISO }
 
   // Load books from local storage and merge with initial data
   useEffect(() => {
     const savedBooks = localStorage.getItem('bookCatalog');
+    const savedLoans = localStorage.getItem('bookLoans');
     let initialBooks = [];
     
     if (savedBooks) {
@@ -135,6 +138,9 @@ function App() {
     
     setBooks(initialBooks);
     setFilteredBooks(initialBooks);
+    if (savedLoans) {
+      setLoans(JSON.parse(savedLoans));
+    }
   }, []);
 
   // Save books to local storage whenever books change
@@ -143,6 +149,16 @@ function App() {
       localStorage.setItem('bookCatalog', JSON.stringify(books));
     }
   }, [books]);
+
+  // Persist loans
+  useEffect(() => {
+    localStorage.setItem('bookLoans', JSON.stringify(loans));
+  }, [loans]);
+
+  // Persist view toggle
+  useEffect(() => {
+    localStorage.setItem('catalogView', view);
+  }, [view]);
 
   // Apply filters whenever books or filters change
   useEffect(() => {
@@ -258,98 +274,183 @@ function App() {
   };
 
   const handleDeleteSelected = () => {
-    setBooks(books.filter((book) => !book.selected));
+    const remaining = books.filter((book) => !book.selected);
+    setBooks(remaining);
+    // Optionally remove loans for deleted books
+    setLoans(loans.filter(loan => remaining.some(b => b.isbn13 === loan.isbn13)));
+  };
+
+  // Derived helpers for loans
+  const loanedIsbnSet = new Set(loans.map(l => l.isbn13));
+  const availableBooks = books.filter(b => !loanedIsbnSet.has(b.isbn13));
+  const getBookTitle = (isbn13) => books.find(b => b.isbn13 === isbn13)?.title || 'Unknown Title';
+  const formatDueDate = (iso) => new Date(iso).toLocaleDateString();
+
+  const handleCreateLoan = (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const borrower = form.borrower.value.trim();
+    const isbn13 = form.book.value;
+    const weeks = parseInt(form.weeks.value, 10);
+    if (!borrower || !isbn13 || !(weeks >= 1 && weeks <= 4)) return;
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + weeks * 7);
+    setLoans([
+      ...loans,
+      { isbn13, borrower, weeks, dueDateISO: dueDate.toISOString() }
+    ]);
+    form.reset();
   };
 
   return (
     <div className="app">
       <header className="header">
         <h1>Esteban's Book Catalog V5</h1>
+        <div style={{ marginTop: "0.5rem" }}>
+          {view === 'catalog' ? (
+            <button className="update-button" onClick={() => setView('loans')}>Go to Loans</button>
+          ) : (
+            <button className="update-button" onClick={() => setView('catalog')}>Back to Catalog</button>
+          )}
+        </div>
       </header>
 
       <main className="content">
-        <div className="add-button-column">
-          <button className="add-button" onClick={handleOpenAddDialog}>
-            + Add
-          </button>
-          <button className="update-button" onClick={handleOpenUpdateDialog}>
-            Update
-          </button>
-          <button className="delete-button" onClick={handleDeleteSelected}>
-            Delete
-          </button>
-
-          {/* Filter Controls */}
-          <div className="filter-controls">
-            <div className="filter-group">
-              <label htmlFor="title-filter">Filter by Title:</label>
-              <input
-                id="title-filter"
-                type="text"
-                placeholder="Search books by title..."
-                value={filters.title}
-                onChange={(e) => handleFilterChange('title', e.target.value)}
-                className="filter-input"
-              />
-            </div>
-
-            <div className="filter-group">
-              <label htmlFor="year-sort">Sort by Publication Year:</label>
-              <select
-                id="year-sort"
-                value={filters.yearSort}
-                onChange={(e) => handleFilterChange('yearSort', e.target.value)}
-                className="filter-select"
-              >
-                <option value="none">No sorting</option>
-                <option value="oldest">Oldest first</option>
-                <option value="newest">Newest first</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label htmlFor="pages-sort">Sort by Pages:</label>
-              <select
-                id="pages-sort"
-                value={filters.pagesSort}
-                onChange={(e) => handleFilterChange('pagesSort', e.target.value)}
-                className="filter-select"
-              >
-                <option value="none">No sorting</option>
-                <option value="asc">Fewest pages first</option>
-                <option value="desc">Most pages first</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <button 
-                onClick={() => setFilters({ title: '', yearSort: 'none', pagesSort: 'none' })}
-                className="clear-filters-button"
-              >
-                Clear Filters
+        {view === 'catalog' ? (
+          <>
+            <div className="add-button-column">
+              <button className="add-button" onClick={handleOpenAddDialog}>
+                + Add
               </button>
-            </div>
-          </div>
-        </div>
+              <button className="update-button" onClick={handleOpenUpdateDialog}>
+                Update
+              </button>
+              <button className="delete-button" onClick={handleDeleteSelected}>
+                Delete
+              </button>
 
-        <div className="book-grid">
-          {filteredBooks.length === 0 ? (
-            <p style={{ textAlign: "center", width: "100%", marginTop: "2rem" }}>
-              {books.length === 0 
-                ? "No books yet. Click 'Add' to create a new book."
-                : "No books match your current filters. Try adjusting your search criteria."
-              }
-            </p>
-          ) : (
-            filteredBooks.map((book) => (
-              <Book
-                key={book.isbn13}
-                book={book}
-                onSelect={() => handleSelectBook(book.isbn13)}
-              />
-            ))
-          )}
-        </div>
+              {/* Filter Controls */}
+              <div className="filter-controls">
+                <div className="filter-group">
+                  <label htmlFor="title-filter">Filter by Title:</label>
+                  <input
+                    id="title-filter"
+                    type="text"
+                    placeholder="Search books by title..."
+                    value={filters.title}
+                    onChange={(e) => handleFilterChange('title', e.target.value)}
+                    className="filter-input"
+                  />
+                </div>
+
+                <div className="filter-group">
+                  <label htmlFor="year-sort">Sort by Publication Year:</label>
+                  <select
+                    id="year-sort"
+                    value={filters.yearSort}
+                    onChange={(e) => handleFilterChange('yearSort', e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="none">No sorting</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="newest">Newest first</option>
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <label htmlFor="pages-sort">Sort by Pages:</label>
+                  <select
+                    id="pages-sort"
+                    value={filters.pagesSort}
+                    onChange={(e) => handleFilterChange('pagesSort', e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="none">No sorting</option>
+                    <option value="asc">Fewest pages first</option>
+                    <option value="desc">Most pages first</option>
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <button 
+                    onClick={() => setFilters({ title: '', yearSort: 'none', pagesSort: 'none' })}
+                    className="clear-filters-button"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="book-grid">
+              {filteredBooks.length === 0 ? (
+                <p style={{ textAlign: "center", width: "100%", marginTop: "2rem" }}>
+                  {books.length === 0 
+                    ? "No books yet. Click 'Add' to create a new book."
+                    : "No books match your current filters. Try adjusting your search criteria."
+                  }
+                </p>
+              ) : (
+                filteredBooks.map((book) => (
+                  <Book
+                    key={book.isbn13}
+                    book={book}
+                    onSelect={() => handleSelectBook(book.isbn13)}
+                    isOnLoan={loanedIsbnSet.has(book.isbn13)}
+                  />
+                ))
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="add-button-column">
+              <h2>Loan Management</h2>
+              {availableBooks.length === 0 ? (
+                <p style={{ marginTop: "1rem" }}>All books are currently on loan.</p>
+              ) : (
+                <form onSubmit={handleCreateLoan} className="book-form" style={{ maxWidth: 480 }}>
+                  <label className="form-label">
+                    Borrower:
+                    <input type="text" name="borrower" className="form-input" required />
+                  </label>
+                  <label className="form-label">
+                    Book:
+                    <select name="book" className="form-input" required defaultValue="">
+                      <option value="" disabled>Select a book</option>
+                      {availableBooks.map(b => (
+                        <option key={b.isbn13} value={b.isbn13}>{b.title}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="form-label">
+                    Loan Period (weeks):
+                    <input type="number" name="weeks" min="1" max="4" className="form-input" required />
+                  </label>
+                  <div className="form-buttons">
+                    <button type="submit" className="submit-button">Create Loan</button>
+                    <button type="button" className="close-button" onClick={() => setView('catalog')}>Back to Catalog</button>
+                  </div>
+                </form>
+              )}
+            </div>
+
+            <div style={{ width: "100%", marginTop: "1.5rem" }}>
+              <h3>Loaned Books</h3>
+              {loans.length === 0 ? (
+                <p>No current loans.</p>
+              ) : (
+                <ul>
+                  {loans.map((loan, idx) => (
+                    <li key={idx}>
+                      <strong>{loan.borrower}</strong> has "{getBookTitle(loan.isbn13)}" until {formatDueDate(loan.dueDateISO)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </>
+        )}
       </main>
 
       <footer className="footer">

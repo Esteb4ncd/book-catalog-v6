@@ -1,8 +1,8 @@
 {
-  "name": "book-catalog-v5",
+  "name": "book-catalog-v6",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://Esteb4ncd.github.io/book-catalog-v5",
+  "homepage": "https://Esteb4ncd.github.io/book-catalog-v6",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",

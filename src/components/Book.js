@@ -41,14 +41,19 @@
 
 import React from "react";
 
-export default function Book({ book, onSelect }) {
+export default function Book({ book, onSelect, isOnLoan }) {
   return (
     <div
       className={`book-card ${book.selected ? "selected" : ""}`}
       onClick={onSelect}
     >
       <img src={book.image} alt={book.title} />
-      <h3>{book.title}</h3>
+      <h3>
+        {book.title}
+        {isOnLoan && (
+          <span style={{ marginLeft: 8, color: "#b00020", fontSize: "0.9em" }}>(On loan)</span>
+        )}
+      </h3>
       <p className="book-author">{book.authors}</p>
       <p className="book-details">
         {book.year && `Published: ${book.year}`}
