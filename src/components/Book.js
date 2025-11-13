@@ -43,10 +43,11 @@ import React from "react";
 
 export default function Book({ book, onSelect, isOnLoan }) {
   const handleClick = () => {
-    if (!isOnLoan && onSelect) {
+    if (isOnLoan) {
+      return;
+    }
+    if (onSelect) {
       onSelect();
-    } else if (isOnLoan) {
-      alert("This book is currently on loan and cannot be modified.");
     }
   };
 

@@ -116,6 +116,8 @@ function App() {
   const [loans, setLoans] = useState([]); // { isbn13, borrower, weeks, dueDateISO }
   const loanedIsbnSet = new Set(loans.map(l => l.isbn13));
   const availableBooks = books.filter(b => !loanedIsbnSet.has(b.isbn13));
+  const selectedBook = books.find(book => book.selected);
+  const isSelectedBookOnLoan = selectedBook ? loanedIsbnSet.has(selectedBook.isbn13) : false;
   const getBookTitle = (isbn13) => books.find(b => b.isbn13 === isbn13)?.title || 'Unknown Title';
   const formatDueDate = (iso) => new Date(iso).toLocaleDateString();
 
@@ -208,13 +210,11 @@ function App() {
   };
 
   const handleOpenUpdateDialog = () => {
-    const selectedBook = books.find((book) => book.selected);
     if (!selectedBook) {
       alert("Please select a book to update.");
       return;
     }
     if (loanedIsbnSet.has(selectedBook.isbn13)) {
-      alert("Books that are on loan cannot be updated.");
       return;
     }
     setCurrentBook(selectedBook);
@@ -274,7 +274,6 @@ function App() {
 
   const handleSelectBook = (isbn13) => {
     if (loanedIsbnSet.has(isbn13)) {
-      alert("Books that are on loan cannot be modified.");
       return;
     }
     setBooks(
@@ -290,7 +289,6 @@ function App() {
       (book) => book.selected && loanedIsbnSet.has(book.isbn13)
     );
     if (loanedSelections.length > 0) {
-      alert("Books that are on loan cannot be deleted.");
       return;
     }
     const remaining = books.filter((book) => !book.selected);
@@ -335,10 +333,20 @@ function App() {
               <button className="add-button" onClick={handleOpenAddDialog}>
                 + Add
               </button>
-              <button className="update-button" onClick={handleOpenUpdateDialog}>
+              <button
+                className="update-button"
+                onClick={handleOpenUpdateDialog}
+                disabled={!selectedBook || isSelectedBookOnLoan}
+                aria-disabled={!selectedBook || isSelectedBookOnLoan}
+              >
                 Update
               </button>
-              <button className="delete-button" onClick={handleDeleteSelected}>
+              <button
+                className="delete-button"
+                onClick={handleDeleteSelected}
+                disabled={!selectedBook || isSelectedBookOnLoan}
+                aria-disabled={!selectedBook || isSelectedBookOnLoan}
+              >
                 Delete
               </button>
 
