@@ -114,6 +114,10 @@ function App() {
   const [currentBook, setCurrentBook] = useState(null);
   const [view, setView] = useState(() => localStorage.getItem('catalogView') || 'catalog'); // 'catalog' | 'loans'
   const [loans, setLoans] = useState([]); // { isbn13, borrower, weeks, dueDateISO }
+  const loanedIsbnSet = new Set(loans.map(l => l.isbn13));
+  const availableBooks = books.filter(b => !loanedIsbnSet.has(b.isbn13));
+  const getBookTitle = (isbn13) => books.find(b => b.isbn13 === isbn13)?.title || 'Unknown Title';
+  const formatDueDate = (iso) => new Date(iso).toLocaleDateString();
 
   // Load books from local storage and merge with initial data
   useEffect(() => {
@@ -209,6 +213,10 @@ function App() {
       alert("Please select a book to update.");
       return;
     }
+    if (loanedIsbnSet.has(selectedBook.isbn13)) {
+      alert("Books that are on loan cannot be updated.");
+      return;
+    }
     setCurrentBook(selectedBook);
     if (updateDialogRef.current) updateDialogRef.current.showModal();
   };
@@ -265,6 +273,10 @@ function App() {
   };
 
   const handleSelectBook = (isbn13) => {
+    if (loanedIsbnSet.has(isbn13)) {
+      alert("Books that are on loan cannot be modified.");
+      return;
+    }
     setBooks(
       books.map((book) => ({
         ...book,
@@ -274,17 +286,18 @@ function App() {
   };
 
   const handleDeleteSelected = () => {
+    const loanedSelections = books.filter(
+      (book) => book.selected && loanedIsbnSet.has(book.isbn13)
+    );
+    if (loanedSelections.length > 0) {
+      alert("Books that are on loan cannot be deleted.");
+      return;
+    }
     const remaining = books.filter((book) => !book.selected);
     setBooks(remaining);
     // Optionally remove loans for deleted books
     setLoans(loans.filter(loan => remaining.some(b => b.isbn13 === loan.isbn13)));
   };
-
-  // Derived helpers for loans
-  const loanedIsbnSet = new Set(loans.map(l => l.isbn13));
-  const availableBooks = books.filter(b => !loanedIsbnSet.has(b.isbn13));
-  const getBookTitle = (isbn13) => books.find(b => b.isbn13 === isbn13)?.title || 'Unknown Title';
-  const formatDueDate = (iso) => new Date(iso).toLocaleDateString();
 
   const handleCreateLoan = (event) => {
     event.preventDefault();

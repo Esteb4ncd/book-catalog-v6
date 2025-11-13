@@ -42,10 +42,25 @@
 import React from "react";
 
 export default function Book({ book, onSelect, isOnLoan }) {
+  const handleClick = () => {
+    if (!isOnLoan && onSelect) {
+      onSelect();
+    } else if (isOnLoan) {
+      alert("This book is currently on loan and cannot be modified.");
+    }
+  };
+
   return (
     <div
-      className={`book-card ${book.selected ? "selected" : ""}`}
-      onClick={onSelect}
+      className={`book-card ${book.selected ? "selected" : ""} ${isOnLoan ? "on-loan" : ""}`}
+      onClick={handleClick}
+      role="button"
+      aria-disabled={isOnLoan}
+      tabIndex={isOnLoan ? -1 : 0}
+      style={{
+        cursor: isOnLoan ? "not-allowed" : "pointer",
+        opacity: isOnLoan ? 0.7 : 1
+      }}
     >
       <img src={book.image} alt={book.title} />
       <h3>
